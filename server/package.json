@@ -1,0 +1,27 @@
+{
+  "name": "weatherpi",
+  "version": "0.1.0",
+  "description": "A weather information server.",
+  "main": "weather-server.js",
+  "dependencies": {
+    "diskdb": "^0.1.17",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node weather-server.js"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Jon Fowler",
+    "email": "jonfowler@protonmail.com"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefowlj/weatherpi.git"
+  }
+}
