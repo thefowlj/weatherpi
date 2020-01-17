@@ -46,6 +46,17 @@ server.get('/temp/all', (req, res) => {
   res.json(db.temperature.find());
 });
 
+/*
+  Return the most recent measurement posted to the database, based on timestamp.
+*/
+server.get('/temp/latest', (req, res) => {
+  res.json(
+    db.temperature.find().sort((a, b) => {
+      return b.ts - a.ts
+    }
+  )[0]);
+});
+
 server.listen(port, () => {
   console.log(`Server listening at ${port}`);
 });
