@@ -8,17 +8,30 @@ const http = require('http').createServer(server);
 const dotenv = require('dotenv');
 const db = require('diskdb');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 
 // requires a .env file to be created
-dotenv.config();
+try {
+  dotenv.config();
+} catch(e) {
+  console.log('.env not configured');
+}
 
 // .env file should include PORT=#
-const port = process.env.PORT;
+const port = process.env.PORT == undefined ? 4000 : process.env.PORT;
 
 server.use(express.json());
 server.use(express.static('public'));
 
-db.connect('db', ['temperature']);
+try {
+  if (!fs.existsSync(path.join(__dirname, 'db'))) {
+    fs.mkdirSync(path.join(__dirname, 'db'));
+  }
+  db.connect('db', ['temperature']);
+} catch(e) {
+  console.log('An error occured accessing database')
+}
 
 /*
   JSON data should include temp key with a value that is a valid number

@@ -11,13 +11,14 @@ import os
 import requests
 from dotenv import load_dotenv
 import argparse
+import json
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 
 load_dotenv()
-POST_URL = os.getenv('API_URL')
+API_URL = os.getenv('API_URL')
 HEADERS = { 'Content-type': 'application/json' }
 
 parser = argparse.ArgumentParser(description='Measure temperature using mpc3008 chip and tmp36 diode')
@@ -65,7 +66,7 @@ def ConvertTemp(data,places,farenheit):
 if VERBOSE:
   print('VERBOSE::', VERBOSE)
   print('LOCAL::', LOCAL)
-  print('POST_URL::', POST_URL)
+  print('API_URL::', API_URL)
   print('CLK::', CLK)
   print('MISO::', MISO)
   print('MOSI::', MOSI)
