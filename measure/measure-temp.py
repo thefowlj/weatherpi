@@ -10,6 +10,7 @@ import decimal
 import os
 import requests
 from dotenv import load_dotenv
+import argparse
 
 # Import SPI library (for hardware SPI) and MCP3008 library.
 import Adafruit_GPIO.SPI as SPI
@@ -17,7 +18,14 @@ import Adafruit_MCP3008
 
 load_dotenv()
 POST_URL = os.getenv('API_URL')
-HEADERS = { 'Content-type': application/json' }
+HEADERS = { 'Content-type': 'application/json' }
+
+parser = argparse.ArgumentParser(description='Measure temperature using mpc3008 chip and tmp36 diode')
+parser.add_argument('-v', '--verbose', action='store_true', dest='v', help='verbose output')
+parser.add_argument('-local', action='store_true', dest='local', help='output data locally ignoring API/network settings')
+args = parser.parse_args()
+VERBOSE = args.v
+LOCAL = args.local
 
 tempChannel = 0
 tempList=[]
@@ -54,6 +62,15 @@ def ConvertTemp(data,places,farenheit):
   temp = round(temp,places)
   return temp
 
+if VERBOSE:
+  print('VERBOSE::', VERBOSE)
+  print('LOCAL::', LOCAL)
+  print('POST_URL::', POST_URL)
+  print('CLK::', CLK)
+  print('MISO::', MISO)
+  print('MOSI::', MOSI)
+  print('CS::', CS)
+
 def measure_cpu_temp():
     temp = os.popen("vcgencmd measure_temp").readline()
     temp = temp.replace("temp=","").replace("'C","").replace("\n",'').replace("\r",'')
@@ -65,10 +82,14 @@ while True:
     temp = ConvertTemp(mcp.read_adc(tempChannel),1,False)
     tempList.append(temp)
     if(len(tempList)==10):
-        avgTemp = sum(tempList)/len(tempList)
+        avgTemp = round(sum(tempList)/len(tempList), 1)
         output = { 'temp': avgTemp }
-        r = requests.post(API_URL, data=json.dumps(output), headers=HEADERS)
-        print(output)
-        print(r.text)
+        if not LOCAL:
+          r = requests.post(API_URL, data=json.dumps(output), headers=HEADERS)
+        if VERBOSE:
+          print('CPU Temp::', measure_cpu_temp())
+          print(output)
+          if not LOCAL:
+            print(r.text)
         tempList=[]
     time.sleep(1)
