@@ -15,15 +15,22 @@
 		.main-temp {
 			font-family: 'Roboto', sans-serif;
 			font-weight: 100;
-			font-size: 45px;
+			font-size: 15vw;
+		}
+    .time {
+			font-family: 'Roboto', sans-serif;
+			font-weight: 100;
+			font-size: 3vw;
 		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script>
 		function init() {
 			$.getJSON('temp/latest', (data) => {
-				console.log(data.temp);
+				let ts = new Date(data.ts);
 				$('.main-temp').html(`${convertCF(data.temp)}&#176; F`);
+        $('#ts-date').text(ts.toLocaleDateString('en-US'));
+        $('#ts-time').text(ts.toLocaleTimeString('en-US'));
 			});
 		}
 
@@ -36,5 +43,9 @@
 </head>
 <body class="centered" onload="init()">
   <p class="main-temp"></p>
+  <p class="time">Updated:<br>
+    <span id="ts-date"></span><br>
+    <span id="ts-time"></span>
+  </p>
 </body>
 </html>
