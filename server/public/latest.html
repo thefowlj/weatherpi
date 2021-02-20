@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" as="style">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+	<style>
+		.centered {
+		  position: fixed;
+		  top: 50%;
+		  left: 50%;
+		  /* bring your own prefixes */
+		  transform: translate(-50%, -50%);
+		}
+		.main-temp {
+			font-family: 'Roboto', sans-serif;
+			font-weight: 100;
+			font-size: 45px;
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		function init() {
+			$.getJSON('temp/latest', (data) => {
+				console.log(data.temp);
+				$('.main-temp').html(`${convertCF(data.temp)}&#176; F`);
+			});
+		}
+
+		function convertCF(c) {
+			f = (c * 1.8) + 32
+			f = Math.round((f + Number.EPSILON) * 10) / 10;
+			return f;
+		}
+	</script>
+</head>
+<body class="centered" onload="init()">
+  <p class="main-temp"></p>
+</body>
+</html>

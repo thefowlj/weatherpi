@@ -70,6 +70,13 @@ server.get('/temp/latest', (req, res) => {
   )[0]);
 });
 
+/*
+  Return html page for most recent posted temperature
+*/
+server.get('/latest', (req, res) => {
+  res.sendFile('public/latest.html', {root: __dirname});
+});
+
 server.listen(port, () => {
   console.log(`Server listening at ${port}`);
 });
