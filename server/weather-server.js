@@ -5,6 +5,7 @@
 const express = require('express');
 const server = express();
 const http = require('http').createServer(server);
+const io = require('socket.io')(http);
 const dotenv = require('dotenv');
 const db = require('diskdb');
 const bodyParser = require('body-parser');
@@ -45,6 +46,7 @@ server.post('/temp/', (req, res) => {
     console.log(reqBody);
     db.temperature.save(reqBody);
     res.json({ status: 1, msg: 'data added'});
+    io.emit('tempUpdate', reqBody);
   } else {
     let response =  { status: 0, msg: 'data not valid', body: reqBody };
     console.log(response);
@@ -77,6 +79,10 @@ server.get('/latest', (req, res) => {
   res.sendFile('public/latest.html', {root: __dirname});
 });
 
-server.listen(port, () => {
+io.on('connection', (socket) => {
+  console.log(socket.id);
+});
+
+http.listen(port, () => {
   console.log(`Server listening at ${port}`);
 });
