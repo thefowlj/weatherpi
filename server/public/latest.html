@@ -17,16 +17,32 @@
 			font-weight: 100;
 			font-size: 15vw;
 		}
-    .time {
+	        .time {
 			font-family: 'Roboto', sans-serif;
 			font-weight: 100;
 			font-size: 3vw;
+		}
+		body {
+			--text-color: #222;
+			--bkg-color: #fff;
+		}
+		body.dark-theme {
+			--text-color: #eee;
+			--bkg-color: #121212;
+		}
+		body {
+			color: var(--text-color);
+			background: var(--bkg-color);
 		}
 	</style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 	<script>
-		function init() {
+	function init() {
+		if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			document.body.classList.add('dark-theme');
+		}
+
       let socket = io();
       socket.on('connect', () => {
         console.log(socket.id);
