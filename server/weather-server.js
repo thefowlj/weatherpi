@@ -29,6 +29,7 @@ try {
 const port = process.env.PORT == undefined ? 4000 : process.env.PORT;
 const noaaUrl = process.env.NOAA_URL;
 const noaaInterval = process.env.NOAA_INTERVAL == undefined ? 60000 : process.env.NOAA_INTERVAL;
+const secondsInDay = 86400000;
 
 server.use(express.json());
 server.use(express.static('public'));
@@ -115,6 +116,17 @@ server.get('/temp/latest', (req, res) => {
       return b.ts - a.ts
     }
   )[0]);
+});
+
+/*
+  Return the last 24 hours of data.
+*/
+server.get('/temp/24hours', (req, res) => {
+  let date = Date.now() - secondsInDay;
+  let output = db.temperature.find().filter((x) => {
+    return x.ts >= date;
+  });
+  res.json(output);
 });
 
 /*
