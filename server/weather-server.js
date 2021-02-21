@@ -11,6 +11,7 @@ const db = require('diskdb');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const fetch = require ('node-fetch');
 
 // requires a .env file to be created
 try {
@@ -19,8 +20,15 @@ try {
   console.log('.env not configured');
 }
 
-// .env file should include PORT=#
+/*
+  .env file should include:
+  PORT={integer}
+  NOAA_URL={string}
+  NOAA_INTERVAL={integer}
+*/
 const port = process.env.PORT == undefined ? 4000 : process.env.PORT;
+const noaaUrl = process.env.NOAA_URL;
+const noaaInterval = process.env.NOAA_INTERVAL == undefined ? 60000 : process.env.NOAA_INTERVAL;
 
 server.use(express.json());
 server.use(express.static('public'));
@@ -31,7 +39,42 @@ try {
   }
   db.connect('db', ['temperature']);
 } catch(e) {
-  console.log('An error occured accessing database')
+  console.log('An error occured accessing database');
+}
+
+/*
+  Retreives data from NOAA/NWS at regular intervals.
+  Uses the api.wather.gov/grindpoints endpoint to retreive hourly forecast data.
+  https://www.weather.gov/documentation/services-web-api#/default/get_gridpoints__wfo___x___y__forecast_hourly
+*/
+let noaaCurrent = null;
+if(noaaUrl != undefined) {
+  fetchNOAA();
+  setInterval(fetchNOAA, noaaInterval);
+}
+
+/*
+  Fetch data from NOAA/NWS
+*/
+function fetchNOAA() {
+  fetch(noaaUrl)
+    .then(res => res.json())
+    .then(json => parseNOAA(json));
+}
+
+/*
+  Parse data from NOAA/NWS
+*/
+function parseNOAA(json) {
+  let date = new Date();
+  let periods = json.properties.periods;
+  let current = periods.filter((x) => {
+    let start = new Date(x.startTime);
+    let end = new Date(x.endTime);
+    return start <= date && end >= date;
+  });
+  noaaCurrent = current[0];
+  console.log(noaaCurrent);
 }
 
 /*
@@ -42,7 +85,9 @@ try {
 server.post('/temp/', (req, res) => {
   let reqBody = req.body;
   if(typeof reqBody.temp == 'number') {
-    reqBody.ts = Date.now();
+    let date = Date.now();
+    reqBody.noaaTemp = noaaCurrent.temperature;
+    reqBody.ts = date;
     console.log(reqBody);
     db.temperature.save(reqBody);
     res.json({ status: 1, msg: 'data added'});
