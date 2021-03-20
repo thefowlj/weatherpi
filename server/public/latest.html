@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" as="style">
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+	<style>
+		.centered {
+		  position: fixed;
+		  top: 50%;
+		  left: 50%;
+		  /* bring your own prefixes */
+		  transform: translate(-50%, -50%);
+		}
+		.main-temp {
+			font-family: 'Roboto', sans-serif;
+			font-weight: 100;
+			font-size: 15vw;
+		}
+	        .time {
+			font-family: 'Roboto', sans-serif;
+			font-weight: 100;
+			font-size: 3vw;
+		}
+		body {
+			--text-color: #222;
+			--bkg-color: #fff;
+		}
+		body.dark-theme {
+			--text-color: #eee;
+			--bkg-color: #121212;
+		}
+		body {
+			color: var(--text-color);
+			background: var(--bkg-color);
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+	<script>
+  	function init() {
+  		if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  			document.body.classList.add('dark-theme');
+  		}
+
+      let socket = io();
+      socket.on('connect', () => {
+        console.log(socket.id);
+      });
+
+      socket.on('tempUpdate', (data) => {
+        update(data);
+      });
+
+			$.getJSON('temp/latest', (data) => {
+				update(data);
+			});
+		}
+
+    function update(data) {
+      let ts = new Date(data.ts);
+      $('.main-temp').html(`${convertCF(data.temp)}&#176; F`);
+      $('#ts-date').text(ts.toLocaleDateString('en-US'));
+      $('#ts-time').text(ts.toLocaleTimeString('en-US'));
+    }
+
+		function convertCF(c) {
+			f = (c * 1.8) + 32
+			f = Math.round((f + Number.EPSILON) * 10) / 10;
+			return f;
+		}
+	</script>
+</head>
+<body class="centered" onload="init()">
+  <p class="main-temp"></p>
+  <p class="time">Updated:<br>
+    <span id="ts-date"></span><br>
+    <span id="ts-time"></span>
+  </p>
+</body>
+</html>
